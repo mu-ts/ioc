@@ -1,4 +1,6 @@
 export interface ServiceRegistry {
-    register<T>(t: T | string, target: Function): void;
-    instance<T>(t: T | string): T;
+  register<T>(template: FunctionConstructor, name?: string): void;
+  instance<T>(constructor: FunctionConstructor): T;
+  describe<T>(template: FunctionConstructor, index: number, type: T | string | number | boolean): void;
+  wrap<T>(template: T): T;
 }

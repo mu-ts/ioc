@@ -1,12 +1,9 @@
+import { ServiceRegistry } from '../service/ServiceRegistry';
+import { ServiceRegistryImpl } from '../service/impl/ServiceRegistryImpl';
 
-/**
- * Indicates that field is to be saved as a tag, rather than within the body.
- */
-export function inject<T>(t: T): any {
-  // const collectionRegistry: CollectionRegistry = new CollectionRegistryImpl();
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
-    // collectionRegistry.register(target, { 'fields.encode': [propertyKey] });
-    // collectionRegistry.register(target, { 'fields.encode.algorithm': [algorithm] });
-    return descriptor;
+export function inject<T>(value: T | string | number | boolean) {
+  const serviceRegistry: ServiceRegistry = ServiceRegistryImpl.instance;
+  return function(target: any, propertyKey: string | symbol, index: number) {
+    serviceRegistry.describe(target, index, value);
   };
 }
