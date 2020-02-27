@@ -1,0 +1,35 @@
+{
+  "name": "@mu-ts/ioc",
+  "version": "1.0.0",
+  "description": "Simple and lightweight IoC to support mu-ts and lambda needs.",
+  "main": "./lib/index",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mu-ts/ioc.git"
+  },
+  "keywords": [
+    "mu-ts",
+    "ioc",
+    "inversion",
+    "of",
+    "control",
+    "dependency",
+    "injection"
+  ],
+  "author": "matt.filion@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mu-ts/ioc/issues"
+  },
+  "homepage": "https://github.com/mu-ts/ioc#readme",
+  "dependencies": {
+    "@mu-ts/logger": "^3.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^13.7.6",
+    "typescript": "^3.8.2"
+  }
+}
