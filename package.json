@@ -4,8 +4,19 @@
   "description": "Simple and lightweight IoC to support mu-ts and lambda needs.",
   "main": "./lib/index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p .",
+    "test": "nyc mocha -r ts-node/register spec/**/*.spec.ts",
+    "coverage": "nyc report --reporter text-summary",
+    "coverage-export": "nyc report --reporter=lcov > coverage.lcov",
+    "lint": "tslint -p .",
+    "clean": "rm -rf coverage lib .nyc_output"
   },
+  "files": [
+    "lib/*",
+    "README.md",
+    "LICENSE",
+    "CODE_OF_CONDUCT.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mu-ts/ioc.git"

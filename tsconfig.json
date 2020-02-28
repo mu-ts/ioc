@@ -4,11 +4,11 @@
     "experimentalDecorators": true,
     "declaration": true,
     "strict": false,
-    // "noImplicitAny": true,
-    // "noImplicitReturns": true,
-    // "noImplicitThis": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "lib": [
       "ES2016"
     ],

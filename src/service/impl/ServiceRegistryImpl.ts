@@ -11,10 +11,12 @@ export class ServiceRegistryImpl implements ServiceRegistry {
       constructorArgs: { type: 'static' | 'reference'; value: any }[];
     };
   };
+  private instances: { [type: string]: any };
 
   protected constructor() {
     this.logger = LoggerService.named({ name: this.constructor.name, adornments: { '@mu-ts': 'ioc' } });
     this.registry = {};
+    this.instances = [];
     this.logger.debug('init()');
   }
 
@@ -24,6 +26,7 @@ export class ServiceRegistryImpl implements ServiceRegistry {
    * @param name to register this instance with.
    */
   public register(template: FunctionConstructor): void {
+    this.logger.debug('register()', 'Registering an object.', { name: template.name });
     if (!this.registry[template.name]) this.registry[template.name] = { constructorArgs: [] };
     this.registry[template.name].constructor = template;
   }
@@ -36,6 +39,7 @@ export class ServiceRegistryImpl implements ServiceRegistry {
    * @param value static value to provide.
    */
   public describe<T>(template: FunctionConstructor, index: number, type: T | string | number | boolean): void {
+    this.logger.debug('describe()', 'Descirbing a constructor.', { name: template.name, index, type });
     if (!this.registry[template.name]) this.registry[template.name] = { constructorArgs: [] };
     if (typeof type === 'function') this.registry[template.name].constructorArgs[index] = { type: 'reference', value: type };
     else this.registry[template.name].constructorArgs[index] = { type: 'static', value: type };
@@ -45,46 +49,49 @@ export class ServiceRegistryImpl implements ServiceRegistry {
    *
    * @param template
    */
-  public wrap<T>(template: any): T {
-    /**
-     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
-     */
-    return new Proxy(template, {
+  public instance<T>(template: any): T {
+    this.logger.debug('wrap()', 'Wrapping an instance and returning a proxy.', { name: template.name });
+
+    if (!this.registry[template.name]) {
+      return template;
+    }
+
+    let instance: T = this.instances[template.name];
+
+    if (!instance) {
       /**
-       * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/construct
-       *
-       * @param target  The target object.
-       * @param args The list of arguments for the constructor.
-       * @param newTarget The constructor that was originally called, p above.
+       * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
        */
-      construct(target: FunctionConstructor, args: any[], newTarget: FunctionConstructor) {
-        const newArgs: any = args.map((arg: any) => {
-          if (typeof arg === 'function') {
-            if (this.registry[arg.constructor.name]) return this.instance(this.registry[arg.constructor.name]);
-            if (this.registry[arg.name]) return this.instance(this.registry[arg.name]);
-          }
-          return arg;
-        });
+      const that: any = this;
+      const proxy: any = new Proxy(template, {
+        /**
+         * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/construct
+         *
+         * @param target  The target object.
+         * @param args The list of arguments for the constructor.
+         */
+        construct(target: FunctionConstructor, args: any[]) {
+          const newArgs: any = args.map((arg: any) => {
+            if (arg.type === 'reference') {
+              if (that.registry[arg.value.constructor.name]) return that.instance(arg.constructor.name);
+              if (that.registry[arg.value.name]) return that.instance(arg.name);
+            } else {
+              return arg.value;
+            }
+          });
 
-        return new target(...newArgs);
-      },
-    });
-  }
+          that.logger.debug('instance()', 'Arguments for proxy.', { newArgs });
 
-  /**
-   *
-   * @param t
-   */
-  public instance<T>(constructor: FunctionConstructor): T {
-    if (constructor.length === 0) return (new constructor() as any) as T;
-    const argz: any[] = this.registry[constructor.name].constructorArgs.map((arg: { type: 'static' | 'reference'; value: any }) => {
-      if ('static' === arg.type) {
-        return arg.value;
-      } else {
-        return this.instance(arg.value);
-      }
-    });
-    return (new constructor(...argz) as any) as T;
+          return new target(...newArgs);
+        },
+      });
+
+      instance = (new proxy(...this.registry[template.name].constructorArgs) as any) as T;
+
+      this.logger.debug('instance()', 'New instance created', { name: instance.constructor.name });
+    }
+
+    return instance;
   }
 
   /**

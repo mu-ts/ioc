@@ -1,16 +1,21 @@
-import { ServiceRegistryImpl } from './service/impl/ServiceRegistryImpl';
-import { service } from './decorators/service';
-import { inject } from './decorators/inject';
+export * from './decorators/dependency';
+export * from './decorators/describe';
 
-@service()
+import { ServiceRegistryImpl } from './service/impl/ServiceRegistryImpl';
+import { dependency } from './decorators/dependency';
+import { describe } from './decorators/describe';
+
+process.env.LOG_LEVEL = 'debug;';
+
+@dependency()
 class UserService {
   public name: string = 'test';
   constructor() {}
 }
 
-@service()
+@dependency()
 class ServiceX {
-  constructor(@inject(UserService) public userService: UserService, @inject('foo bar') public name: string) {}
+  constructor(@describe(UserService) public userService: UserService, @describe('foo bar') public name: string) {}
 }
 
 const serviceX: ServiceX = ServiceRegistryImpl.instance.instance(ServiceX as any);
