@@ -9,6 +9,7 @@ Usage is simple, with two decorators you define services and inject them, or sta
 First, decorate your dependency objects with `@dependency()` which results in a `Proxy` being returned. This proxy has a traps to ensure dependencies are looked up to be resolved when they are needed.
 
 ```
+import { dependency } from '@mu-ts/ioc';
 interface SomeService{}
 
 @dependency()
@@ -18,6 +19,9 @@ class SomeServiceImpl implements SomeService{}
 Next, decorate your dependencies constructor with `@describe(ClassName)` to have an instance of that dependency provided. Alternatively, you can provide a static string, boolean or number value as well `@describe('MyStatic Value')`. All arguments must be described or construction will fail.
 
 ```
+import { dependency, describe } from '@mu-ts/ioc';
+
+@dependency()
 class AnotherService {
   constructor(@describe(SomeServiceImpl) someService: SomeService, @describe('John Doe') staticValue:string){}
 }
